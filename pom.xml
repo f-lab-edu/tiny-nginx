@@ -11,6 +11,5 @@
 
     <modules>
         <module>core</module>
-        <module>cache</module>
     </modules>
 </project>
