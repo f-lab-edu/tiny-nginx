@@ -1,2 +1,5 @@
 worker:
   count: 1
+
+cache:
+  path: /data/tiny-nginx-cache
