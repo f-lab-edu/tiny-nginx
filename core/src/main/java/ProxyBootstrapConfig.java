@@ -1,7 +1,7 @@
-public class BootstrapConfiguration {
+public class ProxyBootstrapConfig {
 	private final int workerCount;
 
-	public BootstrapConfiguration(int workerCount) {
+	public ProxyBootstrapConfig(int workerCount) {
 		this.workerCount = workerCount;
 	}
 
@@ -16,8 +16,8 @@ public class BootstrapConfiguration {
 			this.workerCount = workerCount;
 			return this;
 		}
-		public BootstrapConfiguration build(){
-			return new BootstrapConfiguration(workerCount);
+		public ProxyBootstrapConfig build(){
+			return new ProxyBootstrapConfig(workerCount);
 		}
 	}
 }
