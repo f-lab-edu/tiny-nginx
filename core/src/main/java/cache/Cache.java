@@ -1,7 +1,7 @@
 package cache;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 public class Cache implements ICache<Key, MetaValue> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Cache.class);
-	private final Map<Key, MetaValue> cache;
+	private final ConcurrentMap<Key, MetaValue> cache;
 
 	public Cache() {
-		cache = new HashMap<>();
+		cache = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -23,6 +23,14 @@ public class Cache implements ICache<Key, MetaValue> {
 
 	@Override
 	public void put(Key key, MetaValue value) {
+		if (key == null) {
+			return;
+		}
+
+		if (value == null) {
+			cache.remove(key);
+		}
+
 		cache.put(key, value);
 		logger.debug("Cache.put():: key={}, value={}", key.getKey(), value);
 	}

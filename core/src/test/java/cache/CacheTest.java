@@ -2,6 +2,11 @@ package cache;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,8 +34,7 @@ public class CacheTest {
 		assertAll("cache get value test",
 			() -> assertEquals(cache.get(key), value),
 			() -> assertEquals(cache.get(key2), value2),
-			() -> assertTrue(cache.get(key).equals(value)),
-			() -> assertFalse(cache.get(key).equals(value2)));
+			() -> assertNotEquals(cache.get(key), value2));
 	}
 
 	@Test
@@ -44,6 +48,23 @@ public class CacheTest {
 	}
 
 	@Test
+	@DisplayName("특정 경로의 파일 정보를 cache에 저장한다.")
+	void cache_put_file_data() {
+
+		String path = "/Users/laura/Works/Git/tiny-nginx-cache";
+		List<File> fileList = new ArrayList<>();
+		Files files = new Files(path);
+		fileList = files.getAllFiles(path, fileList);
+
+		for (File file : fileList) {
+			Key key = new Key(files.convertMd5(file.getPath()));
+			MetaValue value = new MetaValue(files.convertFileToByteArray(file));
+			cache.put(key, value);
+			assertEquals(cache.get(key), value);
+		}
+	}
+
+	@Test
 	@DisplayName("cache 정보를 1개 삭제하면 크기가 1이 된다.")
 	void cache_remove() {
 		cache.remove(key);
@@ -51,7 +72,7 @@ public class CacheTest {
 		assertAll("cache put value test",
 			() -> assertEquals(cache.size(), 1),
 			() -> assertNull(cache.get(key)),
-			() -> assertTrue(cache.get(key2).equals(value2)));
+			() -> assertEquals(cache.get(key2), value2));
 	}
 
 	@Test
