@@ -19,21 +19,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-configuration2</artifactId>
-            <version>${commons-configuration.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>${commons-beanutils.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson-dataformat-yaml.version}</version>
         </dependency>
 
         <dependency>
@@ -62,10 +50,8 @@
         <maven.compiler.target>11</maven.compiler.target>
         <junit-jupiter.version>5.8.2</junit-jupiter.version>
         <assertj-core.version>3.11.1</assertj-core.version>
-        <commons-configuration.version>2.7</commons-configuration.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <snakeyaml.version>1.30</snakeyaml.version>
         <logback.version>1.2.10</logback.version>
         <netty.version>4.1.73.Final</netty.version>
+        <jackson-dataformat-yaml.version>2.13.0</jackson-dataformat-yaml.version>
     </properties>
 </project>

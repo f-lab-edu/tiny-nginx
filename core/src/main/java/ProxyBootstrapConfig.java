@@ -1,23 +1,85 @@
+import java.util.List;
+
 public class ProxyBootstrapConfig {
-	private final int workerCount;
+	private Worker worker;
+	private Server server;
+	private Cache cache;
 
-	public ProxyBootstrapConfig(int workerCount) {
-		this.workerCount = workerCount;
+	public Server getServer() {
+		return server;
 	}
 
-	public int getWorkerCount() {
-		return workerCount;
+	public Worker getWorker() {
+		return worker;
 	}
 
-	public static class Builder {
-		private int workerCount;
+	public Cache getCache() {
+		return cache;
+	}
 
-		public Builder setWorkerCount(int workerCount) {
-			this.workerCount = workerCount;
-			return this;
+	public class Worker{
+		private int count;
+
+		public int getCount() {
+			return count;
 		}
-		public ProxyBootstrapConfig build(){
-			return new ProxyBootstrapConfig(workerCount);
+
+		@Override
+		public String toString() {
+			return "Worker{" +
+				"count=" + count +
+				'}';
 		}
+	}
+
+	public class Server{
+		private int listen;
+		private String name;
+		private List<String> upstream;
+
+		public int getListen() {
+			return listen;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public List<String> getUpstream() {
+			return upstream;
+		}
+
+		@Override
+		public String toString() {
+			return "Server{" +
+				"listen=" + listen +
+				", name='" + name + '\'' +
+				", upstream=" + upstream +
+				'}';
+		}
+	}
+
+	public class Cache {
+		private String path;
+
+		public String getPath() {
+			return path;
+		}
+
+		@Override
+		public String toString() {
+			return "Cache{" +
+				"path='" + path + '\'' +
+				'}';
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "ProxyBootstrapConfig{" +
+			"worker=" + worker +
+			", server=" + server +
+			", cache=" + cache +
+			'}';
 	}
 }

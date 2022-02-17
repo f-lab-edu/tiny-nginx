@@ -1,12 +1,13 @@
 import java.io.File;
+import java.io.IOException;
 
-import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
-import org.apache.commons.configuration2.YAMLConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -54,20 +55,14 @@ public class ProxyBootstrap {
 	}
 
 	public ProxyBootstrapConfig configure() {
-		String configuationPath = System.getProperty("bootstrap.config.path", "bootstrap.yml");
+		String configuationPath = System.getProperty("bootstrap.config.path", "src/main/resources/bootstrap.yml");
 		try {
-			ImmutableHierarchicalConfiguration configuration = new FileBasedConfigurationBuilder<>(
-				YAMLConfiguration.class)
-				.configure(new Parameters()
-					.fileBased()
-					.setFile(new File(configuationPath)))
-				.getConfiguration();
+			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+			return mapper.readValue(new File(configuationPath),ProxyBootstrapConfig.class);
 
-			return new ProxyBootstrapConfig.Builder()
-				.setWorkerCount(configuration.get(Integer.class, "worker.count"))
-				.build();
-
-		} catch (ConfigurationException exception) {
+		} catch (StreamReadException | DatabindException exception) {
+			throw new IllegalArgumentException("couldn't bind component to class. Is the file format yaml?");
+		} catch (IOException exception) {
 			throw new IllegalArgumentException(String.format("couldn't load configuration from %s", configuationPath),
 				exception);
 		}
