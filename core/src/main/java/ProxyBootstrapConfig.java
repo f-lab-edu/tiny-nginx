@@ -1,5 +1,7 @@
 import java.util.List;
 
+import utils.YamlUtil;
+
 public class ProxyBootstrapConfig {
 	private Worker worker;
 	private Server server;
@@ -23,13 +25,6 @@ public class ProxyBootstrapConfig {
 		public int getCount() {
 			return count;
 		}
-
-		@Override
-		public String toString() {
-			return "Worker{" +
-				"count=" + count +
-				'}';
-		}
 	}
 
 	public class Server{
@@ -49,14 +44,6 @@ public class ProxyBootstrapConfig {
 			return upstream;
 		}
 
-		@Override
-		public String toString() {
-			return "Server{" +
-				"listen=" + listen +
-				", name='" + name + '\'' +
-				", upstream=" + upstream +
-				'}';
-		}
 	}
 
 	public class Cache {
@@ -66,20 +53,10 @@ public class ProxyBootstrapConfig {
 			return path;
 		}
 
-		@Override
-		public String toString() {
-			return "Cache{" +
-				"path='" + path + '\'' +
-				'}';
-		}
 	}
 
 	@Override
 	public String toString() {
-		return "ProxyBootstrapConfig{" +
-			"worker=" + worker +
-			", server=" + server +
-			", cache=" + cache +
-			'}';
+		return YamlUtil.toString(this);
 	}
 }

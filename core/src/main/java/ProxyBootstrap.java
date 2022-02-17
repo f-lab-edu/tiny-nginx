@@ -1,13 +1,7 @@
 import java.io.File;
-import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -19,6 +13,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import utils.YamlUtil;
 
 public class ProxyBootstrap {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyBootstrap.class);
@@ -54,17 +49,17 @@ public class ProxyBootstrap {
 		}
 	}
 
-	public ProxyBootstrapConfig configure() {
+	public void readProperty(){
 		String configuationPath = System.getProperty("bootstrap.config.path", "src/main/resources/bootstrap.yml");
-		try {
-			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-			return mapper.readValue(new File(configuationPath),ProxyBootstrapConfig.class);
+	}
 
-		} catch (StreamReadException | DatabindException exception) {
-			throw new IllegalArgumentException("couldn't bind component to class. Is the file format yaml?");
-		} catch (IOException exception) {
-			throw new IllegalArgumentException(String.format("couldn't load configuration from %s", configuationPath),
-				exception);
+	public ProxyBootstrapConfig configure(String configuationPath) {
+		File fileHandler = new File(configuationPath);
+
+		if(!fileHandler.isFile() && !fileHandler.exists()){
+			throw new IllegalArgumentException(String.format("You can not load configuration file from : %s", configuationPath));
 		}
+
+		return YamlUtil.toObject(fileHandler, ProxyBootstrapConfig.class);
 	}
 }
