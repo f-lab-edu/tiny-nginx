@@ -1,23 +1,62 @@
+import java.util.List;
+
+import utils.YamlUtil;
+
 public class ProxyBootstrapConfig {
-	private final int workerCount;
+	private Worker worker;
+	private Server server;
+	private Cache cache;
 
-	public ProxyBootstrapConfig(int workerCount) {
-		this.workerCount = workerCount;
+	public Server getServer() {
+		return server;
 	}
 
-	public int getWorkerCount() {
-		return workerCount;
+	public Worker getWorker() {
+		return worker;
 	}
 
-	public static class Builder {
-		private int workerCount;
+	public Cache getCache() {
+		return cache;
+	}
 
-		public Builder setWorkerCount(int workerCount) {
-			this.workerCount = workerCount;
-			return this;
+	public class Worker{
+		private int count;
+
+		public int getCount() {
+			return count;
 		}
-		public ProxyBootstrapConfig build(){
-			return new ProxyBootstrapConfig(workerCount);
+	}
+
+	public class Server{
+		private int listen;
+		private String name;
+		private List<String> upstream;
+
+		public int getListen() {
+			return listen;
 		}
+
+		public String getName() {
+			return name;
+		}
+
+		public List<String> getUpstream() {
+			return upstream;
+		}
+
+	}
+
+	public class Cache {
+		private String path;
+
+		public String getPath() {
+			return path;
+		}
+
+	}
+
+	@Override
+	public String toString() {
+		return YamlUtil.toString(this);
 	}
 }

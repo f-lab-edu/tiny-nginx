@@ -1,5 +1,12 @@
 worker:
   count: 1
 
+server:
+  listen: 8080
+  name: localhost
+  upstream:
+    - localhost:8081
+    - localhost:8082
+
 cache:
   path: /data/tiny-nginx-cache

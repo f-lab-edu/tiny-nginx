@@ -1,10 +1,5 @@
 import java.io.File;
 
-import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
-import org.apache.commons.configuration2.YAMLConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +13,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import utils.YamlUtil;
 
 public class ProxyBootstrap {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyBootstrap.class);
@@ -53,23 +49,17 @@ public class ProxyBootstrap {
 		}
 	}
 
-	public ProxyBootstrapConfig configure() {
-		String configuationPath = System.getProperty("bootstrap.config.path", "bootstrap.yml");
-		try {
-			ImmutableHierarchicalConfiguration configuration = new FileBasedConfigurationBuilder<>(
-				YAMLConfiguration.class)
-				.configure(new Parameters()
-					.fileBased()
-					.setFile(new File(configuationPath)))
-				.getConfiguration();
+	public void readProperty(){
+		String configuationPath = System.getProperty("bootstrap.config.path", "src/main/resources/bootstrap.yml");
+	}
 
-			return new ProxyBootstrapConfig.Builder()
-				.setWorkerCount(configuration.get(Integer.class, "worker.count"))
-				.build();
+	public ProxyBootstrapConfig configure(String configuationPath) {
+		File fileHandler = new File(configuationPath);
 
-		} catch (ConfigurationException exception) {
-			throw new IllegalArgumentException(String.format("couldn't load configuration from %s", configuationPath),
-				exception);
+		if(!fileHandler.isFile() && !fileHandler.exists()){
+			throw new IllegalArgumentException(String.format("You can not load configuration file from : %s", configuationPath));
 		}
+
+		return YamlUtil.toObject(fileHandler, ProxyBootstrapConfig.class);
 	}
 }
