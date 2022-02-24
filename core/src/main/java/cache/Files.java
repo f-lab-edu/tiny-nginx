@@ -1,9 +1,9 @@
 package cache;
 
+import static java.nio.file.Files.*;
+
 import java.io.File;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,20 +12,24 @@ import org.slf4j.LoggerFactory;
 public class Files {
 
 	private static final Logger logger = LoggerFactory.getLogger(Files.class);
-	private String path;
 
-	public Files() {
-	}
-
-	public Files(String path) {
-		this.path = path;
-	}
-
-	public boolean existPath() {
-		File dir = new File(this.path);
+	/**
+	 * 디렉토리가 존재하는지 확인한다.
+	 * @param path 디렉토리 경로
+	 * @return 디렉토리 존재 여부
+	 */
+	public boolean existPath(String path) {
+		File dir = new File(path);
+		System.out.println(dir);
 		return dir.exists();
 	}
 
+	/**
+	 * 모든 파일 목록을 조회한다.
+	 * @param path 디렉토리 경로
+	 * @param fileList 파일 목록
+	 * @return 파일 목록
+	 */
 	public List<File> getAllFiles(String path, List<File> fileList) {
 		File directory = new File(path);
 		File[] files = directory.listFiles();
@@ -42,51 +46,22 @@ public class Files {
 			}
 		}
 
-		// logger.debug("fileList={}", fileList);
 		return fileList;
 	}
 
 	/**
-	 * Convert the file contents as byte array.
-	 * @param file File
-	 * @return File contents converted to byte array.
-	 * @throws IOException throws IOException
+	 * 파일 데이터를 Byte 배열로 변환한다.
+	 * @param file 변환할 파일
+	 * @return Byte 배열로 변환된 파일 내용
 	 */
-	public byte[] convertFileToByteArray(File file) {
+	public byte[] fileToByteArray(File file) {
 		byte[] fileContent = null;
 		try {
-			fileContent = java.nio.file.Files.readAllBytes(file.toPath());
+			fileContent = readAllBytes(file.toPath());
 			logger.debug("file={}, content.length={}", file, fileContent.length);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("fileToByteArray() error={}", e.toString());
 		}
 		return fileContent;
-	}
-
-	/**
-	 * Convert the file name as MD5.
-	 * @param path File path
-	 * @return File path converted to md5
-	 */
-	public String convertMd5(String path) {
-		String md5;
-
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(path.getBytes());
-			byte[] byteData = md.digest();
-			StringBuilder sb = new StringBuilder();
-
-			for (byte data : byteData) {
-				sb.append(Integer.toString((data & 0xff) + 0x100, 16).substring(1));
-			}
-			md5 = sb.toString();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			md5 = null;
-		}
-
-		logger.debug("path={}, hashcode={}", path, md5);
-		return md5;
 	}
 }

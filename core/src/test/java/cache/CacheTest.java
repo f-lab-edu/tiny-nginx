@@ -2,11 +2,6 @@ package cache;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,23 +40,6 @@ public class CacheTest {
 		cache.put(key3, value3);
 
 		assertEquals(cache.size(), 3);
-	}
-
-	@Test
-	@DisplayName("특정 경로의 파일 정보를 cache에 저장한다.")
-	void cache_put_file_data() {
-
-		String path = "/Users/laura/Works/Git/tiny-nginx-cache";
-		List<File> fileList = new ArrayList<>();
-		Files files = new Files(path);
-		fileList = files.getAllFiles(path, fileList);
-
-		for (File file : fileList) {
-			Key key = new Key(files.convertMd5(file.getPath()));
-			MetaValue value = new MetaValue(files.convertFileToByteArray(file));
-			cache.put(key, value);
-			assertEquals(cache.get(key), value);
-		}
 	}
 
 	@Test
