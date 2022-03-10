@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HashCode {
-	private static final Logger logger = LoggerFactory.getLogger(Files.class);
+	private static final Logger logger = LoggerFactory.getLogger(HashCode.class);
 
 	/**
 	 * MD5 알고리즘으로 문자열을 암호화한다.
@@ -19,6 +19,15 @@ public class HashCode {
 	}
 
 	/**
+	 * SHA256으로 문자열을 암호화한다.
+	 * @param input 암호화할 문자열
+	 * @return 암호화된 문자열
+	 */
+	public String sha256(String input) {
+		return create("SHA-256", input);
+	}
+
+	/**
 	 * HashCode 를 생성한다.
 	 * @param algorithm 해시 알고리즘
 	 * @param input 암호화할 문자열
@@ -26,14 +35,14 @@ public class HashCode {
 	 */
 	private String create(String algorithm, String input) {
 		MessageDigest md = getMessageDigestInstance(algorithm);
-		md.update(input.getBytes());	// MessageDigest 객체에 데이터 제공;
-		byte[] byteData = md.digest();	// MessageDigest 계산
+		md.update(input.getBytes());    // MessageDigest 객체에 데이터 제공;
+		byte[] byteData = md.digest();    // MessageDigest 계산
 		return byteToHexString(byteData);
 	}
 
 	/**
 	 * MessageDigest 객체를 생성한다.
-	 * @param algorithm	해시 알고리즘
+	 * @param algorithm    해시 알고리즘
 	 * @return MessageDigest 객체
 	 */
 	private MessageDigest getMessageDigestInstance(String algorithm) {
@@ -49,8 +58,8 @@ public class HashCode {
 
 	/**
 	 * byte 배열을 16진수 문자열로 변환한다.
-	 * @param byteData	byte 배열
-	 * @return	16진수로 변환된 문자열
+	 * @param byteData    byte 배열
+	 * @return 16진수로 변환된 문자열
 	 */
 	private String byteToHexString(byte[] byteData) {
 		StringBuilder sb = new StringBuilder();
@@ -69,5 +78,4 @@ public class HashCode {
 
 		return sb.toString();
 	}
-
 }
