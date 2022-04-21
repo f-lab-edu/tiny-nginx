@@ -58,7 +58,7 @@ jobs:
               working_directory: <<parameters.artifact>>/
               command: mvn -pl :<<parameters.artifact>> test jib:build -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
 
-  test_integration:
+  test-integration:
     executor: maven/default
     working_directory: ~/project/
     steps:
@@ -118,7 +118,7 @@ workflows:
   setup_workflow:
     when:
       matches:
-        pattern: "^setup-server$"
+        pattern: "^feacher\\/setup-server$"
         value: << pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
@@ -138,8 +138,8 @@ workflows:
   realease_workflow:
     when:
       matches:
-        pattern: "^(release|test)-.+$"
-        value: << pipeline.git.branch >>
+        pattern: "^(release|feacher\\/test)-.+$"
+        value: <<pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
           context: gcp-auth-context
@@ -154,13 +154,8 @@ workflows:
           requires: 
             - install_and_initialize_gcp_cli
 
-      - test_integration:
-          context: gcp-auth-context
-          requires:
-            - build-and-push-image
-
       - create-instance-with-container:
-          name: create-core-stage-instance
+          name: create-stage-instance
           context: gcp-auth-context
           requires:
             - build-and-push-image-core
@@ -169,11 +164,16 @@ workflows:
           metadata-from-file: user-data=${HOME}/project/.cloud-init/exporter/cloud-config.yaml
 
       - create-instance-with-container:
-          name: create-load-test-stage-instance
+          name: test-performance
           context: gcp-auth-context
           requires:
-            - build-and-push-image-load-test
+            - create-stage-instance
           instance-name: load-test-stage
           container-image: gcr.io/${GOOGLE_PROJECT_ID}/load-test:latest
           container-mount-host-path: host-path=/tmp/results,mount-path=/results
           metadata-from-file: user-data=${HOME}/project/.cloud-init/exporter/cloud-config.yaml
+
+      - test-integration:
+          context: gcp-auth-context
+          requires:
+            - create-stage-instance
