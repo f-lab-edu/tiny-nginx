@@ -1,0 +1,179 @@
+version: 2.1
+orbs: 
+  maven: circleci/maven@1.3.0
+  gcp-cli: circleci/gcp-cli@2.4.0
+
+commands:
+  decode_gcp_service_key_base64:
+    steps:
+      - run:
+          name: "Decode the authentication key"  
+          command : echo 'export GCLOUD_SERVICE_KEY=$(echo $GCLOUD_SERVICE_KEY_BASE64 | base64 -d)' >> $BASH_ENV
+
+  attach_authorized_gcp_sdk:
+    steps:
+      - attach_workspace:
+          at: ~/ 
+      - run:
+          name: "Update PATH to add the gcloud CLI tool"
+          command: echo 'source ~/google-cloud-sdk/path.bash.inc' >> $BASH_ENV
+
+              
+jobs:
+  install_and_initialize_gcp_cli:
+    executor: gcp-cli/default
+    working_directory: /home/circleci/
+    steps:
+          - gcp-cli/install
+          - decode_gcp_service_key_base64
+          - gcp-cli/initialize
+          - run: gcloud auth configure-docker --quiet --project ${GOOGLE_PROJECT_ID}
+          - persist_to_workspace:
+              root: .
+              paths:
+                - google-cloud-sdk
+                - gcloud-service-key.json
+                - .config
+                - .docker
+                
+  build-and-push-image:
+    parameters:
+      artifact:
+        type: string
+        default: core
+    executor: maven/default
+    working_directory: ~/project/tiny-nginx/
+    steps:
+      - checkout
+      - attach_authorized_gcp_sdk
+      - maven/with_cache:
+          steps:
+          - when:
+              condition: 
+                  equal: [load-test, <<parameters.artifact>>]
+              steps:
+                - run: mkdir -p <<parameters.artifact>>/target/classes
+          - run:
+              name: "Build image and push to gcp registry"
+              working_directory: <<parameters.artifact>>/
+              command: mvn -pl :<<parameters.artifact>> test jib:build -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+
+  test_integration:
+    executor: maven/default
+    working_directory: ~/project/
+    steps:
+      - run: echo "Integration test"
+
+  create-instance-with-container:
+    parameters:
+      zone:
+        type: string
+        default: us-west1-b
+      machine-type:
+        type: string
+        default: e2-micro
+      image-project:
+        type: string
+        default: cos-cloud
+      image-family:
+        type: string
+        default: cos-97-lts
+      container-image:
+        type: string
+        default: gcr.io/google-samples/node-hello:latest
+      container-mount-host-path:
+        type: string
+        default: host-path=/tmp/,mount-path=/tmp/
+      container-restart-policy:
+        type: string
+        default: always
+      metadata-from-file:
+        type: string
+        default: user-data=${HOME}/.cloud-init/exporter/cloud-config.yaml
+      instance-name:
+        type: string
+        default: sample-instance
+
+    executor: gcp-cli/default
+    steps:
+      - checkout
+      - attach_authorized_gcp_sdk
+      - run:
+          name: create <<parameters.instance-name>> instance with container
+          command: |
+            gcloud compute instances create-with-container <<parameters.instance-name>> --quiet \
+            --project=${GOOGLE_PROJECT_ID} \
+            --zone=<<parameters.zone>> \
+            --machine-type=<<parameters.machine-type>> \
+            --image-project=<<parameters.image-project>> \
+            --image-family=<<parameters.image-family>> \
+            --container-image=<<parameters.container-image>> \
+            --container-mount-host-path=<<parameters.container-mount-host-path>> \
+            --container-restart-policy=<<parameters.container-restart-policy>> \
+            --metadata-from-file=<<parameters.metadata-from-file>> \
+            --tags http-server
+
+
+workflows:
+  setup_workflow:
+    when:
+      matches:
+        pattern: "^setup-server$"
+        value: << pipeline.git.branch >>
+    jobs:
+      - install_and_initialize_gcp_cli:
+          context: gcp-auth-context
+      - create-instance-with-container:
+          name: create-monitoring-instance-with-container
+          context: gcp-auth-context
+          requires: 
+            - install_and_initialize_gcp_cli
+          instance-name: monitoring
+          container-image: prom/prometheus:v2.34.0
+          container-mount-host-path: host-path=/tmp/prometheus/,mount-path=/etc/prometheus/
+          metadata-from-file: "user-data=${HOME}/project/.cloud-init/monitoring/cloud-config.yaml,\
+          prometheus=${HOME}/project/.prometheus/prometheus.yml"
+
+
+  realease_workflow:
+    when:
+      matches:
+        pattern: "^(release|test)-.+$"
+        value: << pipeline.git.branch >>
+    jobs:
+      - install_and_initialize_gcp_cli:
+          context: gcp-auth-context
+
+      - build-and-push-image:
+          context: gcp-auth-context
+          matrix:
+            parameters:
+              artifact:
+                - load-test
+                - core
+          requires: 
+            - install_and_initialize_gcp_cli
+
+      - test_integration:
+          context: gcp-auth-context
+          requires:
+            - build-and-push-image
+
+      - create-instance-with-container:
+          name: create-core-stage-instance
+          context: gcp-auth-context
+          requires:
+            - build-and-push-image-core
+          instance-name: core-stage
+          container-image: gcr.io/${GOOGLE_PROJECT_ID}/core:latest
+          metadata-from-file: user-data=${HOME}/project/.cloud-init/exporter/cloud-config.yaml
+
+      - create-instance-with-container:
+          name: create-load-test-stage-instance
+          context: gcp-auth-context
+          requires:
+            - build-and-push-image-load-test
+          instance-name: load-test-stage
+          container-image: gcr.io/${GOOGLE_PROJECT_ID}/load-test:latest
+          container-mount-host-path: host-path=/tmp/results,mount-path=/results
+          metadata-from-file: user-data=${HOME}/project/.cloud-init/exporter/cloud-config.yaml

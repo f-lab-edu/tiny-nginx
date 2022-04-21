@@ -1,0 +1,62 @@
+#cloud-config
+users:
+  - name: monitoring
+    uid: 2001
+
+write_files:
+  - path: /etc/systemd/system/pushgateway.service
+    permissions: 0644
+    owner: root:root
+    content: |
+      [Unit]
+      Wants=network-online.target docker.socket
+      After=network-online.target docker.socket
+
+      [Service]
+      TimeoutStartSec=0
+      ExecStart=/usr/bin/docker run --rm -u 2001 \
+          --name=pushgateway \
+          --net=host \
+          --volume=/run/docker.sock:/run/docker.sock \
+          prom/pushgateway:v1.4.2 \
+              --persistence.interval=5m \
+              --web.enable-lifecycle
+
+      ExecReload=/usr/bin/docker restart pushgateway
+      ExecStop=/usr/bin/docker stop pushgateway
+      ExecStopPost=/usr/bin/docker rm pushgateway
+
+  - path: /etc/systemd/system/grafana.service
+    permissions: 0644
+    owner: root:root
+    content: |
+      [Unit]
+      Wants=network-online.target docker.socket
+      After=network-online.target docker.socket
+
+      [Service]
+      TimeoutStartSec=0
+      ExecStart=/usr/bin/docker run --rm -u 2001 \
+          --name=grafana \
+          --net=host \
+          --volume=/run/docker.sock:/run/docker.sock \
+          grafana/grafana:8.4.6
+
+      ExecReload=/usr/bin/docker restart grafana
+      ExecStop=/usr/bin/docker stop grafana
+      ExecStopPost=/usr/bin/docker rm grafana
+
+  - path: /tmp/prometheus/prometheus.yml
+    permissions: 0644
+    owner: root:root
+
+
+runcmd:
+  - |
+    /usr/bin/jq -r '.ds.meta_data."instance-data"' /run/cloud-init/instance-data.json \
+    | /usr/bin/jq -r .prometheus > /tmp/prometheus/prometheus.yml
+  - systemctl daemon-reload
+  - systemctl enable pushgateway.service
+  - systemctl start pushgateway.service
+  - systemctl enable grafana.service
+  - systemctl start grafana.service
