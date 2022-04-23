@@ -11,6 +11,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import utils.YamlUtil;
@@ -31,14 +34,14 @@ public class ProxyBootstrap {
 					protected void initChannel(SocketChannel channel) throws Exception {
 						ChannelPipeline pipeline = channel.pipeline();
 						pipeline.addLast(new LoggingHandler(LogLevel.DEBUG));
-						// pipeline.addLast(new HttpRequestDecoder());
-						// pipeline.addLast(new HttpObjectAggregator(1048576));
-						// pipeline.addLast(new HttpResponseEncoder());
+						pipeline.addLast(new HttpRequestDecoder());
+						pipeline.addLast(new HttpObjectAggregator(1048576));
+						pipeline.addLast(new HttpResponseEncoder());
 						pipeline.addLast(new SimpleContentsHandler());
 					}
 				});
 
-			ChannelFuture channelFuture = serverBootstrap.bind(8080).sync();
+			ChannelFuture channelFuture = serverBootstrap.bind(80).sync();
 			channelFuture.channel().closeFuture().sync();
 
 		} catch (InterruptedException e) {
