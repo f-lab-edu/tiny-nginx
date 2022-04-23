@@ -12,5 +12,6 @@
     <modules>
         <module>core</module>
         <module>api</module>
+        <module>load-test</module>
     </modules>
 </project>
