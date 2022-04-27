@@ -14,6 +14,8 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot-starter-web.version>2.6.4</spring-boot-starter-web.version>
         <spring-boot-starter-test.version>2.6.4</spring-boot-starter-test.version>
         <spring-boot-starter-data-jpa.version>2.6.4</spring-boot-starter-data-jpa.version>
@@ -24,6 +26,8 @@
         <junit-jupiter.version>5.8.2</junit-jupiter.version>
         <assertj-core.version>3.11.1</assertj-core.version>
         <mockito-core.version>4.4.0</mockito-core.version>
+        <jib-maven-plugin.version>3.2.1</jib-maven-plugin.version>
+        <jib.image>domain1</jib.image>
     </properties>
 
     <dependencies>
@@ -97,4 +101,23 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <from>
+                        <image>openjdk:11</image>
+                    </from>
+                    <to>
+                        <image>gcr.io/${env.GOOGLE_PROJECT_ID}/${jib.image}</image>
+                    </to>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>

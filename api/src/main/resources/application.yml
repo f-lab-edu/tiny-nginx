@@ -1,0 +1,84 @@
+spring:
+  profiles:
+    group:
+      domain1:
+        - domain1
+        - common
+      domain2:
+        - domain2
+        - common
+      domain3:
+        - domain3
+        - common
+      domain4:
+        - domain4
+        - common
+      domain5:
+        - domain5
+        - common
+
+---
+# common
+spring:
+  config:
+    activate:
+      on-profile: common
+  h2:
+    console:
+      enabled: true
+      path: /h2
+    datasource:
+      jdbc-url: jdbc:h2:mem:test
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+
+--- # domain1
+spring:
+  config:
+    activate:
+      on-profile: domain1
+server:
+  port: 80
+  servlet:
+    context-path: /domain1
+
+--- # domain2
+spring:
+  config:
+    activate:
+      on-profile: domain2
+server:
+  port: 80
+  servlet:
+    context-path: /domain2
+
+--- # domain3
+spring:
+  config:
+    activate:
+      on-profile: domain3
+server:
+  port: 80
+  servlet:
+    context-path: /domain3
+
+--- # domain4
+spring:
+  config:
+    activate:
+      on-profile: domain4
+server:
+  port: 80
+  servlet:
+    context-path: /domain4
+
+--- # domain5
+spring:
+  config:
+    activate:
+      on-profile: domain5
+server:
+  port: 80
+  servlet:
+    context-path: /domain5
