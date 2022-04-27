@@ -143,7 +143,7 @@ workflows:
   setup_workflow:
     when:
       matches:
-        pattern: "^feacher\\/setup-server$"
+        pattern: "^feacher|feature\\/setup-server$"
         value: << pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
@@ -163,7 +163,7 @@ workflows:
   realease_workflow:
     when:
       matches:
-        pattern: "^(release|feacher\\/test)-.+$"
+        pattern: "^(release|feacher|feature\\/test)-.+$"
         value: <<pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
