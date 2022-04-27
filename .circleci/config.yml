@@ -58,6 +58,31 @@ jobs:
               working_directory: <<parameters.artifact>>/
               command: mvn -pl :<<parameters.artifact>> test jib:build -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
 
+  build-and-push-image-api:
+    parameters:
+      artifact:
+        type: string
+        default: api
+      domain:
+        type: string
+        default: domain1
+    executor: maven/default
+    working_directory: ~/project/tiny-nginx/
+    steps:
+      - checkout
+      - attach_authorized_gcp_sdk
+      - maven/with_cache:
+          steps:
+          - run : 
+            name: "Build image and push to gcp registry for api"
+            working_directory: <<parameters.artifact>>/
+            command: mvn -pl :<<parameters.artifact>> test jib:build \
+              -Dspring.profiles.active=<<parameters.domain>> \
+              -Djib.image=<<parameters.domain>> \
+              -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+
+    
+
   test-integration:
     executor: maven/default
     working_directory: ~/project/
@@ -154,11 +179,27 @@ workflows:
           requires: 
             - install_and_initialize_gcp_cli
 
+      - build-and-push-image-api:
+          context: gcp-auth-context
+          matrix:
+            parameters:
+              artifact:
+                - api
+              domain:
+                - domain1
+                - domain2
+                - domain3
+                - domain4
+                - domain5
+          requires:
+            - install_and_initialize_gcp_cli
+
       - create-instance-with-container:
           name: create-stage-instance
           context: gcp-auth-context
           requires:
             - build-and-push-image-core
+            - build-and-push-image-api
           instance-name: core-stage
           container-image: gcr.io/${GOOGLE_PROJECT_ID}/core:latest
           metadata-from-file: user-data=${HOME}/project/.cloud-init/exporter/cloud-config.yaml
