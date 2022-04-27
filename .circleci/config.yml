@@ -74,14 +74,12 @@ jobs:
       - maven/with_cache:
           steps:
           - run : 
-            name: "Build image and push to gcp registry for api"
-            working_directory: <<parameters.artifact>>/
-            command: mvn -pl :<<parameters.artifact>> test jib:build \
-              -Dspring.profiles.active=<<parameters.domain>> \
-              -Djib.image=<<parameters.domain>> \
-              -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
-
-    
+              name: "Build image and push to gcp registry for api"
+              working_directory: <<parameters.artifact>>/
+              command: mvn -pl :<<parameters.artifact>> test jib:build \
+                -Dspring.profiles.active=<<parameters.domain>> \
+                -Djib.image=<<parameters.domain>> \
+                -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}    
 
   test-integration:
     executor: maven/default
@@ -185,8 +183,6 @@ workflows:
           context: gcp-auth-context
           matrix:
             parameters:
-              artifact:
-                - api
               domain:
                 - domain1
                 - domain2
