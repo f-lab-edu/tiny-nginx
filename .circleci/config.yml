@@ -55,7 +55,7 @@ jobs:
                 - run: mkdir -p <<parameters.artifact>>/target/classes
           - run:
               name: "Build image and push to gcp registry"
-              working_directory: <<parameters.artifact>>/
+              #working_directory: <<parameters.artifact>>/
               command: mvn -pl :<<parameters.artifact>> test jib:build -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
 
   build-and-push-image-api:
@@ -75,8 +75,9 @@ jobs:
           steps:
           - run : 
               name: "Build image and push to gcp registry for api"
-              working_directory: <<parameters.artifact>>/
-              command: mvn compile jib:build -Dspring.profiles.active=<<parameters.domain>> -Djib.image=<<parameters.domain>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+              #working_directory: <<parameters.artifact>>/
+              #command: mvn compile jib:build -Dspring.profiles.active=<<parameters.domain>> -Djib.image=<<parameters.domain>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+              command: mvn -pl :<<parameters.artifact>> compile jib:build -Dspring.profiles.active=<<parameters.domain>> -Djib.image=<<parameters.domain>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
 
   test-integration:
     executor: maven/default
