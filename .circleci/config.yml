@@ -28,7 +28,6 @@ jobs:
           - decode_gcp_service_key_base64
           - gcp-cli/initialize
           - run: gcloud auth configure-docker --quiet --project ${GOOGLE_PROJECT_ID}
-          #- run: cd /home/circleci ; ls -al;
           - persist_to_workspace:
               root: .
               paths:
@@ -77,10 +76,11 @@ jobs:
           - run : 
               name: "Build image and push to gcp registry for api"
               working_directory: <<parameters.artifact>>/
-              command: mvn -pl :<<parameters.artifact>> test jib:build \
-                -Dspring.profiles.active=<<parameters.domain>> \
-                -Djib.image=<<parameters.domain>> \
-                -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}    
+              command: mvn compile jib:build -Dspring.profiles.active=<<parameters.domain>> -Djib.image=<<parameters.domain>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+                #mvn -pl :<<parameters.artifact>> test jib:build \
+                #-Dspring.profiles.active=<<parameters.domain>> \
+                #-Djib.image=<<parameters.domain>> \
+                #-DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}    
 
   test-integration:
     executor: maven/default
