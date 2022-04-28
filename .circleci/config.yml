@@ -28,7 +28,7 @@ jobs:
           - decode_gcp_service_key_base64
           - gcp-cli/initialize
           - run: gcloud auth configure-docker --quiet --project ${GOOGLE_PROJECT_ID}
-          - run: cd /home/circleci ; ls -al;
+          #- run: cd /home/circleci ; ls -al;
           - persist_to_workspace:
               root: .
               paths:
