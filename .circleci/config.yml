@@ -139,8 +139,8 @@ workflows:
     when:
       matches:
         #pattern: "^feacher\\/setup-server$"
-        #pattern: "^feacher\\/setup-server$|^feature\\/.+$"
-        pattern: "^feature\\/.+$"
+        pattern: "^feacher\\/setup-server$|^feature\\/.+$"
+        #pattern: "^feature\\/.+$"
         value: << pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
@@ -161,8 +161,8 @@ workflows:
     when:
       matches:
         #pattern: "^(release|feacher\\/test)-.+$"
-        #pattern: "^(release|feacher\\/test)-.+$|^(feature\\/).+$"
-        pattern: "^(feature\\/).+$"
+        pattern: "^(release|feacher\\/test)-.+$|^(feature\\/).+$"
+        #pattern: "^(feature\\/).+$"
         value: <<pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
