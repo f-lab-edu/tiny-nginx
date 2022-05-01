@@ -63,9 +63,6 @@ jobs:
       artifact:
         type: string
         default: api
-      domain:
-        type: string
-        default: domain1
     executor: maven/default
     working_directory: ~/project/tiny-nginx/
     steps:
@@ -75,9 +72,7 @@ jobs:
           steps:
           - run : 
               name: "Build image and push to gcp registry for api"
-              #working_directory: <<parameters.artifact>>/
-              #command: mvn compile jib:build -Dspring.profiles.active=<<parameters.domain>> -Djib.image=<<parameters.domain>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
-              command: mvn -pl :<<parameters.artifact>> compile jib:build -Dspring.profiles.active=<<parameters.domain>> -Djib.image=<<parameters.domain>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+              command: mvn -pl :<<parameters.artifact>> compile jib:build -Djib.image=<<parameters.artifact>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
 
   test-integration:
     executor: maven/default
@@ -179,14 +174,6 @@ workflows:
 
       - build-and-push-image-api:
           context: gcp-auth-context
-          matrix:
-            parameters:
-              domain:
-                - domain1
-                - domain2
-                - domain3
-                - domain4
-                - domain5
           requires:
             - install_and_initialize_gcp_cli
 
