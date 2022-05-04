@@ -55,8 +55,24 @@ jobs:
                 - run: mkdir -p <<parameters.artifact>>/target/classes
           - run:
               name: "Build image and push to gcp registry"
-              working_directory: <<parameters.artifact>>/
+              #working_directory: <<parameters.artifact>>/
               command: mvn -pl :<<parameters.artifact>> test jib:build -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+
+  build-and-push-image-api:
+    parameters:
+      artifact:
+        type: string
+        default: api
+    executor: maven/default
+    working_directory: ~/project/tiny-nginx/
+    steps:
+      - checkout
+      - attach_authorized_gcp_sdk
+      - maven/with_cache:
+          steps:
+          - run : 
+              name: "Build image and push to gcp registry for api"
+              command: mvn -pl :<<parameters.artifact>> compile jib:build -Djib.image=<<parameters.artifact>> -DGOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
 
   test-integration:
     executor: maven/default
@@ -118,7 +134,8 @@ workflows:
   setup_workflow:
     when:
       matches:
-        pattern: "^feacher\\/setup-server$"
+        #pattern: "^feacher\\/setup-server$"
+        pattern: "^feacher\\/setup-server$|^feature\\/.+$"
         value: << pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
@@ -138,7 +155,8 @@ workflows:
   realease_workflow:
     when:
       matches:
-        pattern: "^(release|feacher\\/test)-.+$"
+        #pattern: "^(release|feacher\\/test)-.+$"
+        pattern: "^(release|feacher\\/test)-.+$|^(feature\\/).+$"
         value: <<pipeline.git.branch >>
     jobs:
       - install_and_initialize_gcp_cli:
@@ -154,11 +172,17 @@ workflows:
           requires: 
             - install_and_initialize_gcp_cli
 
+      - build-and-push-image-api:
+          context: gcp-auth-context
+          requires:
+            - install_and_initialize_gcp_cli
+
       - create-instance-with-container:
           name: create-stage-instance
           context: gcp-auth-context
           requires:
             - build-and-push-image-core
+            - build-and-push-image-api
           instance-name: core-stage
           container-image: gcr.io/${GOOGLE_PROJECT_ID}/core:latest
           metadata-from-file: user-data=${HOME}/project/.cloud-init/exporter/cloud-config.yaml
