@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-public class H2ServerConfig {
+public class H2ServerConfiguration {
 	private Server webServer;
 
 	@Value("${webclient.h2-console-port}")
