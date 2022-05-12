@@ -2,13 +2,10 @@ package api;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.reactive.TransactionalOperator;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -24,7 +21,6 @@ public class RestApiHandler {
 
 	private final R2dbcConfiguration r2dbcConfiguration;
 	private final DatabaseClient databaseClient;
-	private static final Logger logger = LoggerFactory.getLogger(RestApiHandler.class);
 
 	public RestApiHandler(R2dbcConfiguration r2dbcConfiguration,
 		DatabaseClient databaseClient) {
@@ -43,12 +39,16 @@ public class RestApiHandler {
 
 	public Mono<ServerResponse> findById(ServerRequest request) {
 		String id = request.pathVariable("id");
-		Mono<Parameter> body = databaseClient.execute("SELECT * FROM parameter WHERE id=:id")
+		Mono<Parameter> body = findById(id);
+		return ok().contentType(MediaType.TEXT_EVENT_STREAM).body(body, Parameter.class);
+	}
+
+	private Mono<Parameter> findById(String id) {
+		return databaseClient.execute("SELECT * FROM parameter WHERE id=:id")
 			.bind("id", id)
 			.as(Parameter.class)
 			.fetch()
 			.one();
-		return ok().contentType(MediaType.TEXT_EVENT_STREAM).body(body, Parameter.class);
 	}
 
 	public Mono<ServerResponse> save(ServerRequest request) {
@@ -56,16 +56,44 @@ public class RestApiHandler {
 			.flatMap(data -> databaseClient.execute("INSERT INTO parameter (data) VALUES (:data)")
 				.bind("data", data.getData())
 				.fetch()
-				.first()
-				.doOnSuccess(s -> log.info("success ==> {}", s))
-				.doOnError(err -> log.error("error ==> {}", err.toString()))
-				.map(r -> (Long)r.get("id")))
-			.flatMap(save -> noContent().build());
+				.rowsUpdated()
+				.doOnSuccess(s -> log.info("save success ==> count : {}", s.toString()))
+				.doOnError(err -> log.error("save fail ==> {}", err.getMessage())))
+			.flatMap(parameter -> ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(parameter)));
 	}
 
-	// public Mono<ServerResponse> update(ServerRequest request) {
-	//
-	// }
+	public Mono<ServerResponse> update(ServerRequest request) {
+		Mono<Parameter> exist = findById(request.pathVariable("id"));
+		return Mono.zip(
+				data -> {
+					Parameter p = (Parameter)data[0];
+					Parameter p2 = (Parameter)data[1];
+
+					if (p2 != null && StringUtils.hasText(p2.getData())) {
+						p.setData(p2.getData());
+					}
+
+					return p;
+				},
+				exist,
+				request.bodyToMono(Parameter.class)
+			)
+			.cast(Parameter.class)
+			.flatMap(p -> databaseClient.execute("UPDATE parameter SET data=:data WHERE id=:id")
+				.bind("id", p.getId())
+				.bind("data", p.getData())
+				.fetch()
+				.rowsUpdated()
+				.doOnSuccess(s -> log.info("update success ==> count : {}", s.toString()))
+				.doOnError(err -> log.error("update error ==> {}", err.getMessage()))
+				)
+			.flatMap(body -> ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(body)));
+			// .flatMap(body -> noContent().build());
+	}
 
 	public Mono<ServerResponse> delete(ServerRequest request) {
 		String id = request.pathVariable("id");
@@ -74,8 +102,8 @@ public class RestApiHandler {
 			.as(Parameter.class)
 			.fetch()
 			.rowsUpdated()
-			.doOnSuccess(s -> log.info("success ==> {}", s))
-			.doOnError(err -> log.error("error ==> {}", err.toString()))
+			.doOnSuccess(s -> log.info("delete success ==> count: {}", s.toString()))
+			.doOnError(err -> log.error("delete error ==> {}", err.getMessage()))
 			.flatMap(deleted -> noContent().build());
 	}
 }

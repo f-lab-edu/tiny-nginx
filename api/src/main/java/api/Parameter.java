@@ -7,9 +7,11 @@ import org.springframework.data.relational.core.mapping.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Table("parameter")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Parameter {
@@ -18,5 +20,9 @@ public class Parameter {
 	private Long id;
 	@Column("data")
 	private String data;
+
+	public Parameter(String data) {
+		this.data = data;
+	}
 }
 

@@ -27,7 +27,7 @@ public class RestApiRouter {
 				.GET("/api", handler::findAll)
 				.GET("/api/{id}", handler::findById))
 				.POST("/api", handler::save)
-				// .PUT("/api", handler::update)
+				.PUT("/api/{id}", handler::update)
 				.DELETE("/api/{id}", handler::delete))
 			.build();
 	}
