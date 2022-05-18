@@ -20,8 +20,8 @@ class ProxyPromiseTest {
 
 		proxyPromise
 			.throwException(new RuntimeException(expectedExceptionMessage))
-			.applyIfNot(promise -> promise.hasExcetion(), promise -> promise.tryCancelUncompletedPromise())
-			.throwIf(promise -> promise.hasExcetion(), (cause, promise) -> promise.tryFailureUncompletedPromise(cause));
+			.applyIfNot(promise -> promise.hasExcetion(), promise -> promise.tryCancel())
+			.throwIf(promise -> promise.hasExcetion(), (cause, promise) -> promise.tryFailure(cause));
 
 		Future<String> future = proxyPromise.acquireFuture();
 		future.awaitUninterruptibly();
@@ -38,9 +38,9 @@ class ProxyPromiseTest {
 			null);
 
 		proxyPromise
-			.applyIfNot(promise -> promise.isCompleted(), promise -> promise.tryCancelUncompletedPromise())
+			.applyIfNot(promise -> promise.isCompleted(), promise -> promise.tryCancel())
 			.throwException(new RuntimeException())
-			.throwIf(promise -> promise.hasExcetion(), (cause, promise) -> promise.tryFailureUncompletedPromise(cause));
+			.throwIf(promise -> promise.hasExcetion(), (cause, promise) -> promise.tryFailure(cause));
 
 		Future<String> future = proxyPromise.acquireFuture();
 		future.awaitUninterruptibly();
@@ -60,8 +60,8 @@ class ProxyPromiseTest {
 			null);
 
 		proxyPromise
-			.then(value -> value.equals(expectedValue), (value, promise) -> promise.trySuccessUncompletedPromise(value))
-			.applyIfNot(promise -> promise.isCompleted(), promise -> promise.tryCancelUncompletedPromise());
+			.then(value -> value.equals(expectedValue), (value, promise) -> promise.trySuccess(value))
+			.applyIfNot(promise -> promise.isCompleted(), promise -> promise.tryCancel());
 
 		Future<String> future = proxyPromise.acquireFuture();
 		future.awaitUninterruptibly();
@@ -77,7 +77,7 @@ class ProxyPromiseTest {
 		proxyPromise.applyAsync(promise -> {
 			Assertions.assertTrue(eventExecutor.inEventLoop(Thread.currentThread()));
 			return promise;
-		}).apply(promise -> promise.tryCancelUncompletedPromise());
+		}).apply(promise -> promise.tryCancel());
 
 		proxyPromise.acquireFuture().awaitUninterruptibly();
 	}

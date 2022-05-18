@@ -140,21 +140,21 @@ public class ProxyPromise<C> {
 		return this;
 	}
 
-	public ProxyPromise<C> trySuccessUncompletedPromise(C value) {
+	public ProxyPromise<C> trySuccess(C value) {
 		if (!isCompleted()) {
 			promise.trySuccess(value);
 		}
 		return this;
 	}
 
-	public ProxyPromise<C> tryFailureUncompletedPromise(Throwable exception) {
+	public ProxyPromise<C> tryFailure(Throwable exception) {
 		if (!isCompleted()) {
 			promise.tryFailure(exception);
 		}
 		return this;
 	}
 
-	public ProxyPromise<C> tryCancelUncompletedPromise() {
+	public ProxyPromise<C> tryCancel() {
 		if (!isCompleted()) {
 			promise.cancel(false);
 		}

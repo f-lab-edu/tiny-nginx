@@ -1,12 +1,11 @@
-worker:
-  count: 1
+acceptorCount: 1
+workerCount: 4
+serverName: localhost
+listen: 80
 
-server:
-  listen: 8080
-  name: localhost
-  upstream:
+locations:
+  "/":
     - localhost:8081
     - localhost:8082
 
-cache:
-  path: /data/tiny-nginx-cache
+cacheDirectoryPath: /data/tiny-nginx-cache

@@ -9,9 +9,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import proxy.ProxyBootstrapConfig;
 
 @Slf4j
 @NoArgsConstructor
@@ -21,8 +25,6 @@ public class UpstreamChannel {
 
 	private SocketAddress serverHostAndPort;
 	private Channel channel;
-	private EventLoopGroup eventLoopGroup;
-	private EventLoop channelEventLoop;
 	private Bootstrap bootstrap;
 	private volatile Object state;
 	private AtomicInteger connectionSuccessCount;
@@ -31,12 +33,9 @@ public class UpstreamChannel {
 	private static final Object PENDING = new Object();
 	private static final Object ACTIVE = new Object();
 
-	public UpstreamChannel(SocketAddress serverHostAndPort, EventLoopGroup eventLoopGroup, Bootstrap bootstrap) {
-		this.eventLoopGroup = eventLoopGroup;
-		this.channelEventLoop = eventLoopGroup.next();
+	public UpstreamChannel(Bootstrap bootstrap, SocketAddress serverHostAndPort) {
+		this.bootstrap = bootstrap;
 		this.serverHostAndPort = serverHostAndPort;
-		this.bootstrap = bootstrap.clone().remoteAddress(serverHostAndPort)
-			.group(channelEventLoop);
 	}
 
 	public boolean isActive() {
@@ -50,7 +49,7 @@ public class UpstreamChannel {
 		return true;
 	}
 
-	public ChannelProxyPromise<UpstreamChannel> createPromise() {
+	public ChannelProxyPromise<UpstreamChannel> allocateChannel() {
 		ChannelProxyPromise<UpstreamChannel> channelProxyPromise = createNewPromise();
 		allocateChannel(channelProxyPromise);
 		return channelProxyPromise;
@@ -65,22 +64,24 @@ public class UpstreamChannel {
 			.mapIfNot(channel -> channel.hasConnected(), channel -> channel.tryConnecting())
 			.applyAsync(applyPromise -> applyPromise
 				.then(channel -> channel.isActive(),
-					(channel, promise) -> promise.trySuccessUncompletedPromise(channel))
+					(channel, promise) -> promise.trySuccess(channel))
 				.applyIfNot(promise -> promise.hasExcetion() || promise.isCompleted(),
-					promise -> promise.tryCancelUncompletedPromise())
+					promise -> promise.tryCancel())
 				.throwIf(promise -> promise.hasExcetion(),
-					(cause, promise) -> promise.tryFailureUncompletedPromise(cause)));
+					(cause, promise) -> promise.tryFailure(cause)));
 	}
 
 	private void tryConnecting() {
-		ChannelFuture channelFuture = bootstrap.clone().connect();
+		ChannelFuture channelFuture = bootstrap.connect(serverHostAndPort);
 		this.channel = channelFuture.channel();
 	}
 
 	private ChannelProxyPromise<UpstreamChannel> createNewPromise() {
-		Promise<UpstreamChannel> promise = this.eventLoopGroup
+		Promise<UpstreamChannel> promise = this.bootstrap.config().group()
 			.next()
 			.newPromise();
-		return new ChannelProxyPromise<>(channelEventLoop, promise, this, null);
+		EventExecutor eventExecutor = this.bootstrap.config().group().next();
+
+		return new ChannelProxyPromise<>(eventExecutor, promise, this, null);
 	}
 }
