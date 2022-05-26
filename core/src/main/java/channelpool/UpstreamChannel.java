@@ -7,15 +7,14 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoop;
-import io.netty.channel.EventLoopGroup;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import proxy.ProxyBootstrapConfig;
 
 @Slf4j
 @NoArgsConstructor
@@ -38,6 +37,14 @@ public class UpstreamChannel {
 		this.serverHostAndPort = serverHostAndPort;
 	}
 
+	public ChannelFuture registerInEventLoop(Channel other){
+		return this.channel.eventLoop().register(other);
+	}
+
+	public boolean inEventLoop(Channel other){
+		return this.channel.eventLoop().equals(other.eventLoop());
+	}
+
 	public boolean isActive() {
 		return this.channel != null && this.channel.isActive();
 	}
@@ -49,9 +56,9 @@ public class UpstreamChannel {
 		return true;
 	}
 
-	public ChannelProxyPromise<UpstreamChannel> allocateChannel() {
+	public ChannelProxyPromise<UpstreamChannel> tryConnect() {
 		ChannelProxyPromise<UpstreamChannel> channelProxyPromise = createNewPromise();
-		allocateChannel(channelProxyPromise);
+		tryConnect(channelProxyPromise);
 		return channelProxyPromise;
 	}
 
@@ -59,7 +66,7 @@ public class UpstreamChannel {
 		return serverHostAndPort;
 	}
 
-	private void allocateChannel(ChannelProxyPromise<UpstreamChannel> channelProxyPromise) {
+	private void tryConnect(ChannelProxyPromise<UpstreamChannel> channelProxyPromise) {
 		channelProxyPromise
 			.mapIfNot(channel -> channel.hasConnected(), channel -> channel.tryConnecting())
 			.applyAsync(applyPromise -> applyPromise
@@ -72,8 +79,9 @@ public class UpstreamChannel {
 	}
 
 	private void tryConnecting() {
-		ChannelFuture channelFuture = bootstrap.connect(serverHostAndPort);
-		this.channel = channelFuture.channel();
+		this.channel = bootstrap
+			.connect(serverHostAndPort)
+			.channel();
 	}
 
 	private ChannelProxyPromise<UpstreamChannel> createNewPromise() {
@@ -83,5 +91,9 @@ public class UpstreamChannel {
 		EventExecutor eventExecutor = this.bootstrap.config().group().next();
 
 		return new ChannelProxyPromise<>(eventExecutor, promise, this, null);
+	}
+
+	public Channel getChannel() {
+		return channel;
 	}
 }

@@ -3,6 +3,8 @@ package channelpool;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.HttpHeaders;
 
 public class UrlBasedChannelResolver {
@@ -12,7 +14,7 @@ public class UrlBasedChannelResolver {
         this.upstreamChannels = upstreamChannels;
     }
 
-    public ChannelProxyPromise<UpstreamChannel> allocateChannel() {
+    public ChannelProxyPromise<UpstreamChannel> resolve() {
         UpstreamChannelPool upstreamChannelPool = upstreamChannels.get("/");
         return upstreamChannelPool.allocateChannel();
     }

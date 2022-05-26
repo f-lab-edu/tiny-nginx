@@ -1,14 +1,14 @@
 package channelpool;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.EventLoopGroup;
-import io.netty.util.concurrent.EventExecutor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.EventExecutor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UpstreamChannelPool {
@@ -45,7 +45,7 @@ public class UpstreamChannelPool {
 			}
 			return channel;
 		}));
-		return upstreamChannel.allocateChannel();
+		return upstreamChannel.tryConnect();
 	}
 
 	private ChannelProxyPromise<UpstreamChannel> createNewPromise() {
