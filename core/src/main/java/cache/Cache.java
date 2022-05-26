@@ -10,8 +10,16 @@ public class Cache implements ICache<String, MetaValue> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Cache.class);
 	private final ConcurrentMap<String, MetaValue> cache;
+	private static Cache instance;
 
-	public Cache() {
+	public static Cache getInstance() {
+		if (instance == null) {
+			instance = new Cache();
+		}
+		return instance;
+	}
+
+	private Cache() {
 		cache = new ConcurrentHashMap<>();
 	}
 
