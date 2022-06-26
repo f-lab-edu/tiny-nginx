@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import cache.exception.CacheException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -57,6 +58,7 @@ public class Files {
 			log.debug("file={}, content.length={}", file, fileContent.length);
 		} catch (IOException e) {
 			log.info("fileToByteArray() error={}", e.toString());
+			throw new CacheException(e.getMessage(), e);
 		}
 		return fileContent;
 	}

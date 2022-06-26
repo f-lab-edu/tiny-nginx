@@ -19,31 +19,31 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles(value = "dev")
 class ParameterRepositoryTest {
 
-	@Autowired
-	private ParameterRepository parameterRepository;
-
-	private static final String PARAMETER_ID = "id01";
-	private static final String PARAMETER_DATA = "data01";
-
-	@BeforeEach
-	void setUp() {
-		ParameterDto dto = new ParameterDto(PARAMETER_ID, PARAMETER_DATA);
-		Parameter parameter = new Parameter.ParameterBuilder(dto).build();
-		Parameter saveParameter = parameterRepository.save(parameter);
-
-		Assertions.assertEquals(parameter.getId(), saveParameter.getId(), PARAMETER_ID);
-		Assertions.assertEquals(parameter.getData(), saveParameter.getData(), PARAMETER_DATA);
-	}
-
-	@AfterEach
-	void TearDown() {
-		parameterRepository.deleteAll();
-		Assertions.assertEquals(parameterRepository.findAll(), new ArrayList<>());
-	}
-
-	@Test
-	void getListById() {
-		String data = parameterRepository.getListById(PARAMETER_ID).getData();
-		assertEquals(data, PARAMETER_DATA);
-	}
+	// @Autowired
+	// private ParameterRepository parameterRepository;
+	//
+	// private static final String PARAMETER_ID = "id01";
+	// private static final String PARAMETER_DATA = "data01";
+	//
+	// @BeforeEach
+	// void setUp() {
+	// 	ParameterDto dto = new ParameterDto(PARAMETER_ID, PARAMETER_DATA);
+	// 	Parameter parameter = new Parameter.ParameterBuilder(dto).build();
+	// 	Parameter saveParameter = parameterRepository.save(parameter);
+	//
+	// 	Assertions.assertEquals(parameter.getId(), saveParameter.getId(), PARAMETER_ID);
+	// 	Assertions.assertEquals(parameter.getData(), saveParameter.getData(), PARAMETER_DATA);
+	// }
+	//
+	// @AfterEach
+	// void TearDown() {
+	// 	parameterRepository.deleteAll();
+	// 	Assertions.assertEquals(parameterRepository.findAll(), new ArrayList<>());
+	// }
+	//
+	// @Test
+	// void getListById() {
+	// 	String data = parameterRepository.getListById(PARAMETER_ID).getData();
+	// 	assertEquals(data, PARAMETER_DATA);
+	// }
 }

@@ -28,7 +28,7 @@ public class Cache implements ICache<String, MetaValue> {
 		}
 		return instance;
 	}
-
+  
 	private Cache() {
 		cache = new ConcurrentHashMap<>();
 		lruQueue = new ConcurrentLinkedQueue<>();
