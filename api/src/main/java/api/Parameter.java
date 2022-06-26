@@ -1,42 +1,28 @@
 package api;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Table(name = "parameter")
-@Entity
+@Table("parameter")
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Parameter {
 	@Id
-	@Column
-	private String id;
-
-	@Column
+	@Column("id")
+	private Long id;
+	@Column("data")
 	private String data;
 
-	private Parameter(ParameterBuilder builder) {
-		this.id = builder.id;
-		this.data = builder.data;
-	}
-
-	public Parameter() {
-	}
-
-	public static class ParameterBuilder {
-		private final String id;
-		private final String data;
-
-		public ParameterBuilder(ParameterDto parameterDto) {
-			this.id = parameterDto.getId();
-			this.data = parameterDto.getData();
-		}
-
-		public Parameter build() {
-			return new Parameter(this);
-		}
+	public Parameter(String data) {
+		this.data = data;
 	}
 }
+

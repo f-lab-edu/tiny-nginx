@@ -1,0 +1,10 @@
+INSERT INTO parameter (data) VALUES ('data1');
+INSERT INTO parameter (data) VALUES ('data2');
+INSERT INTO parameter (data) VALUES (null);
+INSERT INTO parameter (data) VALUES ('Hello');
+INSERT INTO parameter (data) VALUES ('World');
+INSERT INTO parameter (data) VALUES ('test');
+INSERT INTO parameter (data) VALUES ('value1');
+INSERT INTO parameter (data) VALUES ('value2');
+INSERT INTO parameter (data) VALUES ('value3');
+INSERT INTO parameter (data) VALUES ('value4');
