@@ -2,18 +2,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>tiny-nginx</artifactId>
-        <groupId>kr.flab</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <parent>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <version>2.3.12.RELEASE</version>
+        <relativePath/>
+    </parent>
+    <groupId>kr.flab</groupId>
     <artifactId>api</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-boot-starter-validation.version>2.6.7</spring-boot-starter-validation.version>
         <spring-boot-starter-web.version>2.6.4</spring-boot-starter-web.version>
         <spring-boot-starter-test.version>2.6.4</spring-boot-starter-test.version>
         <spring-boot-starter-data-jpa.version>2.6.4</spring-boot-starter-data-jpa.version>
@@ -24,9 +29,16 @@
         <junit-jupiter.version>5.8.2</junit-jupiter.version>
         <assertj-core.version>3.11.1</assertj-core.version>
         <mockito-core.version>4.4.0</mockito-core.version>
+        <jib-maven-plugin.version>3.2.1</jib-maven-plugin.version>
+        <jib.image>domain1</jib.image>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>${spring-boot-starter-validation.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -97,4 +109,27 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <from>
+                        <image>openjdk:11</image>
+                    </from>
+                    <to>
+                        <image>gcr.io/${env.GOOGLE_PROJECT_ID}/${jib.image}</image>
+                    </to>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>
