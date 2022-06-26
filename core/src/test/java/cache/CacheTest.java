@@ -7,8 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class CacheTest {
-
-	Cache cache = new Cache();
+	Cache cache = Cache.getInstance();
 	String key, key2;
 	MetaValue value, value2;
 
