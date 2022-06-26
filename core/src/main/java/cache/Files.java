@@ -18,7 +18,6 @@ public class Files {
 	 */
 	public static boolean existPath(String path) {
 		File dir = new File(path);
-		log.info("findPath==> {}", dir);
 		return dir.exists();
 	}
 
@@ -53,11 +52,12 @@ public class Files {
 	 * @return Byte 배열로 변환된 파일 내용
 	 */
 	public static byte[] fileToByteArray(File file) {
-		byte[] fileContent;
+		byte[] fileContent = null;
 		try {
 			fileContent = readAllBytes(file.toPath());
 			log.debug("file={}, content.length={}", file, fileContent.length);
 		} catch (IOException e) {
+			log.info("fileToByteArray() error={}", e.toString());
 			throw new CacheException(e.getMessage(), e);
 		}
 		return fileContent;
