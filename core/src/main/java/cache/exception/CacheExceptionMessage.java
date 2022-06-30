@@ -6,4 +6,5 @@ package cache.exception;
  */
 public class CacheExceptionMessage {
 	public static final String CHECK_PATH_CORRECT = "Please check that the path is correct.";
+	public static final String CHECK_STATS_COUNT_NUMBERS = "Items for statistics in the cache cannot use negative numbers.";
 }
