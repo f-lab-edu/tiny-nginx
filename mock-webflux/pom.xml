@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
     <groupId>kr.flab</groupId>
-    <artifactId>api</artifactId>
+    <artifactId>mock-webflux</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -28,7 +28,7 @@
         <assertj-core.version>3.11.1</assertj-core.version>
         <mockito-core.version>4.4.0</mockito-core.version>
         <jib-maven-plugin.version>3.2.1</jib-maven-plugin.version>
-        <jib.image>mock-api-webflux</jib.image>
+        <jib.image>mock-webflux</jib.image>
     </properties>
 
     <dependencies>

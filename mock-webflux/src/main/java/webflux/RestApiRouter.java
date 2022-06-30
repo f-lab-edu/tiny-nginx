@@ -1,4 +1,4 @@
-package api;
+package webflux;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.*;
@@ -24,11 +24,11 @@ public class RestApiRouter {
 	public RouterFunction<ServerResponse> routes() {
 		return route().path(basePath, builder -> builder
 			.nest(accept(MediaType.APPLICATION_JSON), b -> b
-				.GET("/api", handler::findAll)
-				.GET("/api/{id}", handler::findById))
-				.POST("/api", handler::save)
-				.PUT("/api/{id}", handler::update)
-				.DELETE("/api/{id}", handler::delete))
+				.GET("/webflux", handler::findAll)
+				.GET("/webflux/{id}", handler::findById))
+				.POST("/webflux", handler::save)
+				.PUT("/webflux/{id}", handler::update)
+				.DELETE("/webflux/{id}", handler::delete))
 			.build();
 	}
 }

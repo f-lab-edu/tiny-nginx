@@ -1,4 +1,4 @@
-package api;
+package webflux;
 
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;

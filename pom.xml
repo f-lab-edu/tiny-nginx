@@ -11,7 +11,8 @@
 
     <modules>
         <module>core</module>
-        <module>api</module>
+        <module>mock-mvc</module>
+        <module>mock-webflux</module>
         <module>load-test</module>
     </modules>
 </project>

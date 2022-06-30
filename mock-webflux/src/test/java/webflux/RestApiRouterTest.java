@@ -1,4 +1,4 @@
-package api;
+package webflux;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import api.config.WebConfiguration;
+import webflux.config.WebConfiguration;
 
 @SpringJUnitConfig(WebConfiguration.class)
 class RestApiRouterTest {
