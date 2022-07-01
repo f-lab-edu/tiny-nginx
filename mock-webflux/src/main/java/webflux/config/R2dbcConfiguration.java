@@ -1,4 +1,4 @@
-package api.config;
+package webflux.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

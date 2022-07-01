@@ -1,4 +1,4 @@
-package api;
+package mvc;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

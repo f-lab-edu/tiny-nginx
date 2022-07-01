@@ -1,4 +1,4 @@
-package api;
+package webflux;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import api.config.R2dbcConfiguration;
+import webflux.config.R2dbcConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
